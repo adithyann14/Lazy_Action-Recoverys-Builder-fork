@@ -14,6 +14,9 @@ jobs:
       DEVICE_TREE: https://github.com/Adithy4n/recovery_device_xiaomi_pipa.git
       DEVICE_TREE_BRANCH: A-12.1
       BUILD_TARGET: bootimage
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_HARDLINK: "true"
     permissions:
       contents: write
 
@@ -28,6 +31,20 @@ jobs:
       uses: pierotofy/set-swap-space@master
       with:
         swap-size-gb: 12
+
+    - name: Setup ccache
+      uses: actions/cache@v4
+      with:
+        path: ~/.ccache
+        key: ccache-pipa-${{ github.run_id }}
+        restore-keys: ccache-pipa-
+
+    - name: Configure ccache
+      run: |
+        ccache --max-size=5G
+        ccache --set-config=compression=true
+        echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
+        echo "USE_CCACHE=1" >> $GITHUB_ENV
 
     - name: Prepare the environment
       run: |
@@ -75,6 +92,13 @@ jobs:
 
     - name: Create twrp.dependencies
       run: echo "[]" > android-recovery/device/xiaomi/pipa/twrp.dependencies
+
+    - name: Create missing MIUI OTA certificate
+      run: |
+        mkdir -p android-recovery/vendor/recovery/security
+        openssl req -x509 -newkey rsa:4096 -keyout /dev/null \
+          -out android-recovery/vendor/recovery/security/miui.x509.pem \
+          -days 10000 -nodes -subj "/CN=dummy"
 
     - name: Build PitchBlack
       run: |
