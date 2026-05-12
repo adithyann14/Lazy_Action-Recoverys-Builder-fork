@@ -32,20 +32,6 @@ jobs:
       with:
         swap-size-gb: 12
 
-    - name: Setup ccache
-      uses: actions/cache@v4
-      with:
-        path: ~/.ccache
-        key: ccache-pipa-${{ github.run_id }}
-        restore-keys: ccache-pipa-
-
-    - name: Configure ccache
-      run: |
-        ccache --max-size=5G
-        ccache --set-config=compression=true
-        echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
-        echo "USE_CCACHE=1" >> $GITHUB_ENV
-
     - name: Prepare the environment
       run: |
         sudo apt update
