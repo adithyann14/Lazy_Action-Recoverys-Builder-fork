@@ -12,7 +12,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       MANIFEST_BRANCH: android-12.1
       DEVICE_TREE: https://github.com/Adithy4n/recovery_device_xiaomi_pipa.git
-      DEVICE_TREE_BRANCH: PBRP
+      DEVICE_TREE_BRANCH: A-12.1
       BUILD_TARGET: bootimage
     permissions:
       contents: write
