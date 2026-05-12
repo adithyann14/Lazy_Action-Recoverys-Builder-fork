@@ -73,25 +73,15 @@ jobs:
         cd device/xiaomi/pipa
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
-    - name: Extract Device Info from Makefile
-      run: |
-        cd android-recovery/device/xiaomi/pipa
-        for file in *.mk; do
-          makefile=$(sed -n 's/^[[:space:]]*PRODUCT_NAME[[:space:]]*:=\s*\(.*\)/\1/p' "$file")
-          codename=$(sed -n 's/^[[:space:]]*PRODUCT_DEVICE[[:space:]]*:=\s*\(.*\)/\1/p' "$file")
-          if [[ -n "$makefile" && -n "$codename" ]]; then
-            echo "DEVICE_MAKEFILE=${makefile}" >> $GITHUB_ENV
-            echo "DEVICE_NAME=${codename}" >> $GITHUB_ENV
-            break
-          fi
-        done
+    - name: Create twrp.dependencies
+      run: echo "[]" > android-recovery/device/xiaomi/pipa/twrp.dependencies
 
     - name: Build PitchBlack
       run: |
         cd android-recovery
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
-        lunch twrp_pipa && mka ${{ env.BUILD_TARGET }}
+        lunch twrp_pipa-eng && mka ${{ env.BUILD_TARGET }}
 
     - name: Set Build Date
       run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
@@ -100,10 +90,10 @@ jobs:
       uses: softprops/action-gh-release@master
       with:
         files: |
-          android-recovery/out/target/product/${{ env.DEVICE_NAME }}/boot.img
-          android-recovery/out/target/product/${{ env.DEVICE_NAME }}/PBRP*.zip
-          android-recovery/out/target/product/${{ env.DEVICE_NAME }}/ramdisk-recovery.*
-        name: Unofficial PBRP for ${{ env.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
+          android-recovery/out/target/product/pipa/boot.img
+          android-recovery/out/target/product/pipa/PBRP*.zip
+          android-recovery/out/target/product/pipa/ramdisk-recovery.*
+        name: Unofficial PBRP for pipa // ${{ env.BUILD_DATE }}
         tag_name: ${{ github.run_id }}
         body: |
           Build: ${{ env.MANIFEST_BRANCH }}
