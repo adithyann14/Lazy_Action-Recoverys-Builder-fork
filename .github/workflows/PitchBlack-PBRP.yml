@@ -77,7 +77,7 @@ jobs:
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
     - name: Create twrp.dependencies
-      run: echo "[]" > android-recovery/device/xiaomi/munch/twrp.dependencies
+      run: echo "[]" > android-recovery/device/xiaomi/pip/twrp.dependencies
 
  #   - name: Create missing MIUI OTA certificate
  #     run: |
@@ -91,7 +91,7 @@ jobs:
         cd android-recovery
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
-        lunch twrp_munch-eng && mka ${{ env.BUILD_TARGET }}
+        lunch twrp_pipa-eng && mka ${{ env.BUILD_TARGET }}
 
     - name: Set Build Date
       run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
@@ -100,9 +100,9 @@ jobs:
       uses: softprops/action-gh-release@master
       with:
         files: |
-          android-recovery/out/target/product/munch/boot.img
-          android-recovery/out/target/product/munch/PBRP*.zip
-          android-recovery/out/target/product/munch/ramdisk-recovery.*
+          android-recovery/out/target/product/pipa/boot.img
+          android-recovery/out/target/product/pipa/PBRP*.zip
+          android-recovery/out/target/product/pipa/ramdisk-recovery.*
         name: Unofficial PBRP for pipa // ${{ env.BUILD_DATE }}
         tag_name: ${{ github.run_id }}
         body: |
