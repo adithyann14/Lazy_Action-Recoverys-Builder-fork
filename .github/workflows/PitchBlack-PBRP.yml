@@ -73,7 +73,7 @@ jobs:
       run: |
         cd android-recovery
         git clone ${{ env.DEVICE_TREE }} -b ${{ env.DEVICE_TREE_BRANCH }} device/xiaomi/munch
-        cd device/xiaomi/pipa
+        cd device/xiaomi/munch
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
     - name: Create twrp.dependencies
