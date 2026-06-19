@@ -1,0 +1,111 @@
+name: PitchBlack [PBRP 
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build PBRP by ${{ github.actor }}
+    runs-on: ubuntu-22.04
+    if: github.event.repository.owner.id == github.event.sender.id
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MANIFEST_BRANCH: android-12.1
+      DEVICE_TREE: https://github.com/adithyann14/recovery
+      DEVICE_TREE_BRANCH: pbrp-12.1
+      BUILD_TARGET: vendorbootimage
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_HARDLINK: "true"
+    permissions:
+      contents: write
+
+    steps:
+    - name: Check Out
+      uses: actions/checkout@v4
+
+#    - name: Cleanup
+#      uses: rokibhasansagar/slimhub_actions@main
+
+    - name: Set Swap Space
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 12
+
+    - name: Prepare the environment
+      run: |
+        sudo apt update
+        sudo apt -y upgrade
+        sudo apt -y install gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib \
+          libc6-dev lib32ncurses5-dev x11proto-core-dev libx11-dev tree lib32z-dev \
+          libgl1-mesa-dev libxml2-utils xsltproc bc ccache lib32readline-dev lib32z1-dev \
+          liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-gtk3-dev libxml2 lzop \
+          pngcrush schedtool squashfs-tools imagemagick libbz2-dev lzma ncftp \
+          qemu-user-static libstdc++-10-dev libtinfo5 libgflags-dev libncurses5 python3 ccache
+
+    - name: Install OpenJDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '8'
+
+    - name: Install Git-Repo
+      run: |
+        mkdir ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
+
+    - name: Initialize Repo
+      run: |
+        mkdir android-recovery
+        cd android-recovery
+        git config --global user.name "lazycodebuilder"
+        git config --global user.email "154446636+lazycodebuilder@users.noreply.github.com"
+        repo init --depth=1 -u https://github.com/PitchBlackRecoveryProject/manifest_pb.git -b ${{ env.MANIFEST_BRANCH }}
+
+    - name: Repo Sync
+      run: |
+        cd android-recovery
+        repo sync -j$(nproc --all) --force-sync
+
+    - name: Clone Device Tree
+      run: |
+        cd android-recovery
+        git clone ${{ env.DEVICE_TREE }} -b ${{ env.DEVICE_TREE_BRANCH }} device/xiaomi/pipa
+        cd device/xiaomi/pipa
+        echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+    - name: Create twrp.dependencies
+      run: echo "[]" > android-recovery/device/xiaomi/pipa/twrp.dependencies
+
+ #   - name: Create missing MIUI OTA certificate
+ #     run: |
+  #      mkdir -p android-recovery/vendor/recovery/security
+  #      openssl req -x509 -newkey rsa:4096 -keyout /dev/null \
+   #       -out android-recovery/vendor/recovery/security/miui.x509.pem \
+   #       -days 10000 -nodes -subj "/CN=dummy"
+
+    - name: Build PitchBlack
+      run: |
+        cd android-recovery
+        source build/envsetup.sh
+        export ALLOW_MISSING_DEPENDENCIES=true
+        lunch pb_pipa-eng && mka ${{ env.BUILD_TARGET }}
+
+    - name: Set Build Date
+      run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@master
+      with:
+        files: |
+          android-recovery/out/target/product/pipa/boot.img
+          android-recovery/out/target/product/pipa/PBRP*.zip
+          android-recovery/out/target/product/pipa/ramdisk-recovery.*
+        name: Unofficial PBRP for pipa // ${{ env.BUILD_DATE }}
+        tag_name: ${{ github.run_id }}
+        body: |
+          Build: ${{ env.MANIFEST_BRANCH }}
+          Device: [Device Tree/Branch](${{ env.DEVICE_TREE }}/tree/${{ env.DEVICE_TREE_BRANCH }})
+          Commit: Most recent [commit](${{ env.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
