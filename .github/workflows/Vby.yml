@@ -1,4 +1,4 @@
-name: PitchBlack [PBRP 
+name: PitchBlack vb
 
 on:
   workflow_dispatch:
