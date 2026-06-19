@@ -101,7 +101,8 @@ jobs:
       with:
         files: |
           android-recovery/out/target/product/pipa/boot.img
-          android-recovery/out/target/product/pipa/PBRP*.zip
+          android-recovery/out/target/product/pipa/*img
+          android-recovery/out/target/product/pipa/*.zip
           android-recovery/out/target/product/pipa/ramdisk-recovery.*
         name: Unofficial PBRP for pipa // ${{ env.BUILD_DATE }}
         tag_name: ${{ github.run_id }}
