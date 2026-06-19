@@ -11,8 +11,8 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       MANIFEST_BRANCH: android-12.1
-      DEVICE_TREE: https://github.com/adithyann14/device_xiaomi_pipa.git
-      DEVICE_TREE_BRANCH: android-12.1
+      DEVICE_TREE: https://github.com/adithyann14/recovery
+      DEVICE_TREE_BRANCH: pbrp-12.1
       BUILD_TARGET: bootimage
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
