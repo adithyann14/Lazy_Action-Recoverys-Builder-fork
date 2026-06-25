@@ -99,7 +99,7 @@ jobs:
         cd android-recovery
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
-        lunch pb_pipa-eng && make clean && make ${{ env.BUILD_CMD }} -j$(nproc --all)
+        lunch twrp_pipa-eng && make clean && make ${{ env.BUILD_CMD }} -j$(nproc --all)
 
     - name: Set Build Date
       run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
