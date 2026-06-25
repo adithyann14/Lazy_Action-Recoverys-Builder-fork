@@ -23,7 +23,7 @@ jobs:
       MANIFEST: https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git
       MANIFEST_BRANCH: twrp-12.1
       DEVICE_TREE: https://github.com/adithyann14/recovery
-      DEVICE_TREE_BRANCH: pbrp-12.1
+      DEVICE_TREE_BRANCH: android-12.1
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
