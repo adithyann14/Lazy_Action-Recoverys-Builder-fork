@@ -38,6 +38,18 @@ jobs:
       uses: pierotofy/set-swap-space@master
       with:
         swap-size-gb: 12
+ 
+    - name: Cleanup
+      uses: rokibhasansagar/slimhub_actions@main
+
+    - name: Free Additional Disk Space
+      run: |
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/local/.ghcup
+        docker rmi $(docker images -q) 2>/dev/null || true
+        df -h
 
     - name: Prepare the environment
       run: |
