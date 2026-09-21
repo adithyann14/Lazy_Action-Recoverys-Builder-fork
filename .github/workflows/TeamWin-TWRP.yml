@@ -93,6 +93,9 @@ jobs:
         cd device/xiaomi/pipa
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
+    - name: Create twrp.dependencies
+      run: echo "[]" > android-recovery/device/xiaomi/pipa/twrp.dependencies
+
     - name: Set Build Target Name
       run: |
         if [ "${{ inputs.BUILD_TARGET }}" == 'vendorboot' ]; then
